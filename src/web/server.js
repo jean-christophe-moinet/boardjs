@@ -1,33 +1,18 @@
 var express = require('express');
 var fs = require('fs');
 var configurator = require('../config.js');
+var routerModule = require ('./router.js');
+var cacheModule = require('./cache.js');
+
+var Router = new routerModule.Router();
+var Cache = new cacheModule.Cache();
 
 var Server = function() {
 
     // Scope.
     var self = this; 
 
-    self.setupVariables = function() {
-	console.log('Port : %s', configurator.httpConfig.port);
-	console.log('IP address : %s', configurator.httpConfig.ipaddress);
-    };
-
-    self.populateCache = function() {
-	if (typeof self.zcache === "undefined") {
-	    self.zcache = {
-		'index.html' : ''
-	    };
-	}
-
-	// Local cache for static content.
-	self.zcache['index.html'] = fs.readFileSync('index.html');
-    };
-
-    self.cache_get = function(key) {
-	return self.zcache[key];
-    };
-
-    self.terminator = function(sig) {
+   self.terminator = function(sig) {
 	if (typeof sig === "string") {
 	    console.log('%s: Received %s - terminating sample app ...', Date(Date.now()), sig);
 	    process.exit(1);
@@ -49,31 +34,13 @@ var Server = function() {
 	});
     };
 
-    self.createRoutes = function() {
-	self.routes = {};
-
-	// Routes for /health, /asciimo and /
-	self.routes['/health'] = function(req, res) {
-	    res.send('1');
-	};
-
-	self.routes['/asciimo'] = function(req, res) {
-	    var link = "http://i.imgur.com/kmbjB.png";
-	    res.send("<html><body><img src='" + link + "'></body></html>");
-	};
-
-	self.routes['/'] = function(req, res) {
-	    res.setHeader('Content-Type', 'text/html');
-	    res.send(self.cache_get('index.html'));
-	};
-    };
-
     self.initializeServer = function() {
-	self.createRoutes();
+	Router.createRoutes();
 	self.app = express.createServer();
 
-	for ( var r in self.routes) {
-	    self.app.get(r, self.routes[r]);
+	for ( var r in Router.routes) {
+	    console.log('Creating route for %s', r);
+	    self.app.get(r, Router.routes[r]);
 	}
     };
 
@@ -88,8 +55,7 @@ var Server = function() {
     };
 
     self.initialize = function() {
-	self.setupVariables();
-	self.populateCache();
+	Cache.populateCache();
 	self.setupTerminationHandlers();
 
 	self.initializeServer();
