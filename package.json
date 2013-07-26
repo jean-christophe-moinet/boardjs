@@ -1,5 +1,5 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "boardjs",
   "version": "1.0.0",
   "description": "OpenShift Sample Application",
   "keywords": [
@@ -25,7 +25,9 @@
   },
 
   "dependencies": {
-	  "express": "~3.1.0"
+	  "express": "~3.1.0",		  
+	  "path": "~0.4.9",
+	  "mongoose": "~3.5.5"	
   },
   "devDependencies": {},
   "bundleDependencies": [],
