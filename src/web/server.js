@@ -5,7 +5,7 @@ var configurator = require('../config.js');
 var Server = function() {
 
     // Scope.
-    var self = this;
+    var self = this; 
 
     self.setupVariables = function() {
 	console.log('Port : %s', configurator.httpConfig.port);
